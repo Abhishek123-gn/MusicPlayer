@@ -1,0 +1,67 @@
+# This is a sample Python script.
+
+# Press Shift+F10 to execute it or replace it with your code.
+# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+import os
+import pygame
+from tkinter import Tk, filedialog, messagebox, Button
+
+class MusicPlayer:
+    def __init__(self):
+        self.current_directory = os.path.dirname(os.path.abspath(__file__))
+        self.root = Tk()
+        self.root.title("Music Player")
+        self.music_directory = ""
+        self.current_song = ""
+        self.paused = False
+
+        # Create buttons
+        self.select_button = Button(self.root, text="Select Music", command=self.select_music)
+        self.play_button = Button(self.root, text="Play", command=self.play_music)
+        self.pause_button = Button(self.root, text="Pause", command=self.pause_music)
+        self.stop_button = Button(self.root, text="Stop", command=self.stop_music)
+
+        # Pack buttons
+        self.select_button.pack()
+        self.play_button.pack()
+        self.pause_button.pack()
+        self.stop_button.pack()
+
+        self.root.mainloop()
+
+    def select_music(self):
+        self.music_directory = filedialog.askdirectory(initialdir=self.current_directory, title="Select Music")
+        self.root.lift()
+
+    def play_music(self):
+        if self.music_directory:
+            if not self.current_song:
+                song_list = os.listdir(self.music_directory)
+                if len(song_list) == 0:
+                    messagebox.showerror("Error", "No songs found in the selected directory.")
+                    return
+                self.current_song = os.path.join(self.music_directory, song_list[0])
+
+            if self.paused:
+                pygame.mixer.music.unpause()
+                self.paused = False
+            else:
+                pygame.mixer.init()
+                pygame.mixer.music.load(self.current_song)
+                pygame.mixer.music.play()
+
+    def pause_music(self):
+        if pygame.mixer.music.get_busy():
+            if self.paused:
+                pygame.mixer.music.unpause()
+                self.paused = False
+            else:
+                pygame.mixer.music.pause()
+                self.paused = True
+
+    def stop_music(self):
+        if pygame.mixer.music.get_busy():
+            pygame.mixer.music.stop()
+            self.paused = False
+
+player = MusicPlayer()
